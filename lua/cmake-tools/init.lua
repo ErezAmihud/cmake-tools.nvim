@@ -431,7 +431,6 @@ function cmake.run(opt)
         local model = config:get_code_model_info()[opt.target]
         local result = config:get_launch_target_from_info(model)
         local target_path = result.data
-        
         local launch_path = vim.fn.fnamemodify(target_path, ":h")
 
         if full_cmd ~= "" then
