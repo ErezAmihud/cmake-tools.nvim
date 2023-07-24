@@ -1,3 +1,4 @@
+local quickfix = require("cmake-tools.executors.quickfix")
 local const = {
   cmake_command = "cmake", -- cmake command path
   cmake_regenerate_on_save = true,
@@ -21,11 +22,9 @@ local const = {
     console = "integratedTerminal",
   },
   cmake_always_use_terminal = false, -- if true, use terminal for generate, build, clean, install, run, else only use terminal for run, use quickfix for others
-  cmake_quickfix_opts = {
-    show = "always", -- "always", "only_on_error"
-    position = "belowright", -- "bottom", "top"
-    size = 10,
-  },
+  executor=quickfix:new({ 	show = "always", -- "always", "only_on_error"
+	position = "belowright", -- "bottom", "top"
+    	size = 10,}),
   cmake_terminal_opts = {
     name = "Main Terminal",
     prefix_name = "[CMakeTools]: ", -- This must be included and must be unique, otherwise the terminals will not work. Do not use a simple spacebar " ", or any generic name

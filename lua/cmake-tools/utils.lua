@@ -1,8 +1,8 @@
 local Path = require("plenary.path")
 local Result = require("cmake-tools.result")
 local Types = require("cmake-tools.types")
-local terminal = require("cmake-tools.terminal")
-local quickfix = require("cmake-tools.quickfix")
+local terminal = require("cmake-tools.executors.terminal")
+--local quickfix = require("cmake-tools.quickfix")
 
 -- local const = require("cmake-tools.const")
 
@@ -36,21 +36,7 @@ function utils.get_cmake_configuration()
   return Result:new(Types.SUCCESS, cmakelists, "cmake-tools has found CMakeLists.txt.")
 end
 
-function utils.show_cmake_window(always_use_terminal, quickfix_opts, terminal_opts)
-  if always_use_terminal then
-    terminal.show(terminal_opts)
-  else
-    quickfix.show(quickfix_opts)
-  end
-end
 
-function utils.close_cmake_window(always_use_terminal)
-  if always_use_terminal then
-    terminal.close()
-  else
-    quickfix.close()
-  end
-end
 
 function utils.get_path(str, sep)
   sep = sep or "/"
@@ -61,15 +47,13 @@ end
 -- @param executable executable file
 -- @param full_cmd full command line
 -- @param opts execute options
-function utils.execute(executable, full_cmd, opts)
+function utils.execute(executor, executable, full_cmd, opts)
   -- Please save all
   vim.cmd("silent exec " .. "\"wall\"")
-
-  -- First, if we use quickfix to generate, build, etc, we should close it
-  if not opts.cmake_always_use_terminal then
-    quickfix.close()
+  -- First, if we use some adapter to generate, build, etc, we should close it
+  if not (executor.name == "terminal") then
+     executor:close()
   end
-
   -- Then, execute it
   terminal.execute(executable, full_cmd, opts)
 end
@@ -110,25 +94,15 @@ function utils.deepcopy(orig, copies)
 end
 
 -- Execute CMake command using job api
-function utils.run(cmd, env, args, opts)
+---@param executor executor.Adapter
+---@param cmd string
+---@param env table
+---@param args table
+---@param opts table
+function utils.run(executor, cmd, env, args, opts)
   -- save all
   vim.cmd("wall")
-
-  if opts.cmake_always_use_terminal then
-    return terminal.run(cmd, opts)
-  else
-    return quickfix.run(cmd, env, args, opts)
-  end
-end
-
---- Check if exists active job.
--- @return true if exists else false
-function utils.has_active_job(always_use_terminal)
-  if always_use_terminal then
-    return terminal.has_active_job()
-  else
-    return terminal.has_active_job() or quickfix.has_active_job()
-  end
+  executor:run(cmd,env,args,opts)
 end
 
 function utils.mkdir(dir)
@@ -149,14 +123,6 @@ function utils.file_exists(path)
     return false
   end
   return true
-end
-
-function utils.stop(opts)
-  if opts.cmake_always_use_terminal then
-    terminal.stop()
-  else
-    quickfix.stop()
-  end
 end
 
 return utils
