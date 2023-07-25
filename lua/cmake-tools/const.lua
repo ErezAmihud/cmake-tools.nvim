@@ -22,7 +22,8 @@ local const = {
     console = "integratedTerminal",
   },
   cmake_always_use_terminal = false, -- if true, use terminal for generate, build, clean, install, run, else only use terminal for run, use quickfix for others
-  executor=quickfix:new({ 	show = "always", -- "always", "only_on_error"
+  executor=quickfix:new({
+	  show = "always", -- "always", "only_on_error"
 	position = "belowright", -- "bottom", "top"
     	size = 10,}),
   cmake_terminal_opts = {

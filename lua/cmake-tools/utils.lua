@@ -98,11 +98,11 @@ end
 ---@param cmd string
 ---@param env table
 ---@param args table
----@param opts table
-function utils.run(executor, cmd, env, args, opts)
+---@param on_success function
+function utils.run(executor, cmd, env, args, on_success)
   -- save all
   vim.cmd("wall")
-  executor:run(cmd,env,args,opts)
+  executor:run(cmd,env,args,on_success)
 end
 
 function utils.mkdir(dir)

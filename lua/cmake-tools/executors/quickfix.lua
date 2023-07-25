@@ -37,7 +37,7 @@ local function append_to_quickfix(error, data)
   end
 end
 
-function quickfix:run(cmd, env, args, opts)
+function quickfix:run(cmd, env, args, on_success)
   vim.fn.setqflist({}, " ", { title = cmd .. " " .. table.concat(args, " ") })
   if self.opts.show == "always" then
 	self:show()
@@ -52,8 +52,8 @@ function quickfix:run(cmd, env, args, opts)
     on_exit = vim.schedule_wrap(function(_, code, signal)
       append_to_quickfix("Exited with code " .. (signal == 0 and code or 128 + signal))
       if code == 0 and signal == 0 then
-        if opts.on_success then
-          opts.on_success()
+        if on_success then
+          on_success()
         end
       elseif self.opts.show == "only_on_error" then
         self:show()

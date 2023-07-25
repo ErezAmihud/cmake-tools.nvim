@@ -108,26 +108,19 @@ function cmake.generate(opt, callback)
       if type(callback) == "function" then
         callback()
       else
-        utils.run(config.executor,full_cmd, {}, {}, {
-          cmake_launch_path = vim.loop.cwd(),
-          cmake_always_use_terminal = const.cmake_always_use_terminal,
-          cmake_terminal_opts = const.cmake_terminal_opts
-        })
+        utils.run(config.executor,full_cmd, {}, {}, nil)
         cmake.configure_compile_commands(const.cmake_always_use_terminal, const.cmake_terminal_opts)
         full_cmd = ""
       end
     else
-      return utils.run(config.executor,const.cmake_command, {}, args, {
-        on_success = function()
+      return utils.run(config.executor,const.cmake_command, {}, args,
+        function()
           if type(callback) == "function" then
             callback()
           end
           cmake.configure_compile_commands(const.cmake_always_use_terminal, const.cmake_terminal_opts)
-        end,
-        cmake_launch_path = vim.loop.cwd(),
-        cmake_always_use_terminal = const.cmake_always_use_terminal,
-        cmake_quickfix_opts = const.cmake_quickfix_opts,
-      })
+        end
+	)
     end
   end
 
@@ -186,26 +179,19 @@ function cmake.generate(opt, callback)
     if type(callback) == "function" then
       callback()
     else
-      utils.run(config.executor,full_cmd, {}, {}, {
-        cmake_launch_path = vim.loop.cwd(),
-        cmake_always_use_terminal = const.cmake_always_use_terminal,
-        cmake_terminal_opts = const.cmake_terminal_opts
-      })
+      utils.run(config.executor,full_cmd, {}, {}, nil)
       cmake.configure_compile_commands(const.cmake_always_use_terminal, const.cmake_terminal_opts)
       full_cmd = ""
     end
   else
-    utils.run(config.executor,const.cmake_command, kit_option.env, args, {
-      on_success = function()
+    utils.run(config.executor,const.cmake_command, kit_option.env, args, 
+      function()
         if type(callback) == "function" then
           callback()
         end
         cmake.configure_compile_commands(const.cmake_always_use_terminal, const.cmake_terminal_opts)
-      end,
-      cmake_launch_path = vim.loop.cwd(),
-      cmake_always_use_terminal = const.cmake_always_use_terminal,
-      cmake_quickfix_opts = const.cmake_quickfix_opts,
-    })
+      end
+    )
   end
 end
 
@@ -231,24 +217,16 @@ function cmake.clean(callback)
     if type(callback) == "function" then
       return callback()
     else
-      utils.run(config.executor,full_cmd, {}, {}, {
-        cmake_launch_path = vim.loop.cwd(),
-        cmake_always_use_terminal = const.cmake_always_use_terminal,
-        cmake_terminal_opts = const.cmake_terminal_opts
-      })
+      utils.run(config.executor,full_cmd, {}, {}, nil)
       full_cmd = ""
     end
   else
-    return utils.run(config.executor,const.cmake_command, {}, args, {
-      on_success = function()
+    return utils.run(config.executor,const.cmake_command, {}, args, 
+      function()
         if type(callback) == "function" then
           callback()
         end
-      end,
-      cmake_launch_path = vim.loop.cwd(),
-      cmake_always_use_terminal = const.cmake_always_use_terminal,
-      cmake_quickfix_opts = const.cmake_quickfix_opts,
-    })
+      end)
   end
 end
 
@@ -319,24 +297,16 @@ function cmake.build(opt, callback)
     if type(callback) == "function" then
       callback()
     else
-      utils.run(config.executor,full_cmd, {}, {}, {
-        cmake_launch_path = vim.loop.cwd(),
-        cmake_always_use_terminal = const.cmake_always_use_terminal,
-        cmake_terminal_opts = const.cmake_terminal_opts
-      })
+      utils.run(config.executor,full_cmd, {}, {}, nil)
       full_cmd = ""
     end
   else
-    utils.run(config.executor,const.cmake_command, {}, args, {
-      on_success = function()
+    utils.run(config.executor,const.cmake_command, {}, args, 
+      function()
         if type(callback) == "function" then
           callback()
         end
-      end,
-      cmake_launch_path = vim.loop.cwd(),
-      cmake_always_use_terminal = const.cmake_always_use_terminal,
-      cmake_quickfix_opts = const.cmake_quickfix_opts,
-    })
+      end)
   end
 end
 
@@ -400,12 +370,7 @@ function cmake.install(opt)
   local args = { "--install", config.build_directory.filename }
   vim.list_extend(args, fargs)
 
-  return utils.run(config.executor,const.cmake_command, {}, args, {
-    cmake_launch_path         = vim.loop.cwd(),
-    cmake_always_use_terminal = const.cmake_always_use_terminal,
-    cmake_quickfix_opts       = const.cmake_quickfix_opts,
-    cmake_terminal_opts       = const.cmake_terminal_opts
-  })
+  return utils.run(config.executor,const.cmake_command, {}, args, nil)
 end
 
 --- CMake close cmake console
