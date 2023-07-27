@@ -1,5 +1,6 @@
 local quickfix = require("cmake-tools.executors.quickfix")
 local terminal= require("cmake-tools.executors.terminal")
+-- local overseer_exec = require("cmake-tools.executors.overseer")
 local const = {
   cmake_command = "cmake", -- cmake command path
   cmake_regenerate_on_save = true,
@@ -23,12 +24,13 @@ local const = {
     console = "integratedTerminal",
   },
   cmake_always_use_terminal = false, -- if true, use terminal for generate, build, clean, install, run, else only use terminal for run, use quickfix for others
-  executor=nil,
-  --[[quickfix:new({
+  executor=quickfix:new({
 	  show = "always", -- "always", "only_on_error"
 	position = "belowright", -- "bottom", "top"
     	size = 10,}),
-	]]--
+  --[[
+  -- Other possible value is overseer_exec:new({}) - where the {} is the arguments that pass to overseer.new_task()
+  --]]
   terminal= terminal:new({
     name = "Main Terminal",
     prefix_name = "[CMakeTools]: ", -- This must be included and must be unique, otherwise the terminals will not work. Do not use a simple spacebar " ", or any generic name
