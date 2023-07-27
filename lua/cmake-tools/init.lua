@@ -349,9 +349,7 @@ function cmake.stop()
     return
   end
 
-  config.executor.stop({
-    cmake_always_use_terminal = const.cmake_always_use_terminal
-  })
+  config.executor:stop()
 end
 
 --- CMake install targets
@@ -375,17 +373,17 @@ end
 
 --- CMake close cmake console
 function cmake.close()
-  config.executor.close()
+  config.executor:close()
 end
 
 --- CMake open cmake console
 function cmake.open()
-  config.executor.show()
+  config.executor:show()
 end
 
 -- Run executable targets
 function cmake.run(opt)
-  if config.executor:has_active_job(const.cmake_always_use_terminal) then
+  if config.executor:has_active_job() then
     return
   end
 
@@ -403,10 +401,7 @@ function cmake.run(opt)
         else
           full_cmd = terminal.prepare_cmd_for_execute(target_path, opt.args, launch_path, opt.wrap_call)
         end
-        utils.execute(config.executor, target_path, full_cmd, {
-          cmake_always_use_terminal = const.cmake_always_use_terminal,
-          cmake_terminal_opts = const.cmake_terminal_opts
-        })
+        utils.execute(config.executor, config.terminal, target_path, full_cmd)
         full_cmd = ""
       end)
   else
@@ -449,10 +444,7 @@ function cmake.run(opt)
           else
             full_cmd = terminal.prepare_cmd_for_execute(target_path, cmake:get_launch_args(), launch_path, opt.wrap_call)
           end
-          utils.execute(config.executor,target_path, full_cmd, {
-            cmake_always_use_terminal = const.cmake_always_use_terminal,
-            cmake_terminal_opts = const.cmake_terminal_opts
-          })
+          utils.execute(config.executor, config.terminal, target_path, full_cmd)
           full_cmd = ""
         end
       )
@@ -954,11 +946,7 @@ function cmake.compile_commands_from_soft_link(cmake_always_use_terminal, cmake_
   local source = vim.loop.cwd() .. "/" .. config.build_directory.filename .. "/compile_commands.json"
   local destination = vim.loop.cwd() .. "/compile_commands.json"
   if cmake_always_use_terminal or utils.file_exists(source) then
-    utils.softlink(source, destination, {
-      cmake_launch_path = vim.loop.cwd(),
-      cmake_always_use_terminal = cmake_always_use_terminal,
-      cmake_terminal_opts = cmake_terminal_opts
-    })
+    utils.softlink(source, destination, config.executor)
   end
 end
 

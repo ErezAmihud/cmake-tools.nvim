@@ -482,7 +482,7 @@ Calling `:lua RunPerf()` will then run `perf record --call-graph dwarf {target} 
 
 By default, this plugin uses quickfix console for generate, build, clean, install, and others about cmake, and only uses terminal for run specific target.
 
-But if you want to always use terminal(for example, you want to record all commands and corresponding output), there is a way. You need set `cmake_always_use_terminal` to true, then, all commands will be executed in the terminal.
+But if you want to always use terminal(for example, you want to record all commands and corresponding output), there is a way. You need set `executor` to false, then, all commands will be executed in the terminal.
 
 ---
 

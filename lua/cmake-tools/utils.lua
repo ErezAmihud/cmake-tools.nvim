@@ -1,10 +1,6 @@
 local Path = require("plenary.path")
 local Result = require("cmake-tools.result")
 local Types = require("cmake-tools.types")
-local terminal = require("cmake-tools.executors.terminal")
---local quickfix = require("cmake-tools.quickfix")
-
--- local const = require("cmake-tools.const")
 
 local utils = {}
 
@@ -44,24 +40,26 @@ function utils.get_path(str, sep)
 end
 
 --- Execute CMake launch target in terminal.
--- @param executable executable file
--- @param full_cmd full command line
+---@param  executor executor.Adapter
+-- @param  terminal cmake-tools.terminal
+---@param executable string executable file
+---@param full_cmd string full command line
 -- @param opts execute options
-function utils.execute(executor, executable, full_cmd, opts)
+function utils.execute(executor, terminal, executable, full_cmd)
   -- Please save all
   vim.cmd("silent exec " .. "\"wall\"")
   -- First, if we use some adapter to generate, build, etc, we should close it
-  if not (executor.name == "terminal") then
+  if executor ~= nil then
      executor:close()
   end
   -- Then, execute it
-  terminal.execute(executable, full_cmd, opts)
+  terminal:execute(executable, full_cmd)
 end
 
-function utils.softlink(src, target, opts)
-  if opts.cmake_always_use_terminal and not utils.file_exists(target) then
+function utils.softlink(src, target, config)
+  if config.executor.name == "terminal" and not utils.file_exists(target) then
     local cmd = "cmake -E create_symlink " .. src .. " " .. target
-    terminal.run(cmd, opts)
+    config.terminal:run(cmd)
     return
   end
 

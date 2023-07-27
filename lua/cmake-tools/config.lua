@@ -7,6 +7,7 @@ local variants = require("cmake-tools.variants")
 
 local Config = {
   executor=nil,
+  terminal=nil,
   build_directory = nil,
   query_directory = nil,
   reply_directory = nil,
@@ -27,7 +28,11 @@ function Config:new(const)
   self.__index = self
   self.generate_options = const.cmake_generate_options
   self.build_options = const.cmake_build_options
-  self.executor = const.executor
+  if const.executor == nil then
+	  self.executor = const.terminal
+  end
+  --self.executor = const.executor
+  self.terminal = const.terminal
 
   return self
 end

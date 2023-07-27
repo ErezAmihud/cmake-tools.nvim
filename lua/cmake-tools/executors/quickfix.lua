@@ -1,5 +1,5 @@
 local log = require("cmake-tools.log")
-local terminal = require("cmake-tools.executors.terminal")
+local config = require("cmake-tools.config")
 local Job = require("plenary.job")
 
 ---@type executor.Adapter
@@ -94,7 +94,7 @@ function quickfix.check_scroll()
 end
 
 function quickfix:has_active_job()
-  if terminal.has_active_job() then
+  if config.terminal:has_active_job() then
 	  return true
   end
   if not self.job or self.job.is_shutdown then

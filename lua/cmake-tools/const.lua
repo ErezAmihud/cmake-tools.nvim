@@ -1,4 +1,5 @@
 local quickfix = require("cmake-tools.executors.quickfix")
+local terminal= require("cmake-tools.executors.terminal")
 local const = {
   cmake_command = "cmake", -- cmake command path
   cmake_regenerate_on_save = true,
@@ -22,11 +23,13 @@ local const = {
     console = "integratedTerminal",
   },
   cmake_always_use_terminal = false, -- if true, use terminal for generate, build, clean, install, run, else only use terminal for run, use quickfix for others
-  executor=quickfix:new({
+  executor=nil,
+  --[[quickfix:new({
 	  show = "always", -- "always", "only_on_error"
 	position = "belowright", -- "bottom", "top"
     	size = 10,}),
-  cmake_terminal_opts = {
+	]]--
+  terminal= terminal:new({
     name = "Main Terminal",
     prefix_name = "[CMakeTools]: ", -- This must be included and must be unique, otherwise the terminals will not work. Do not use a simple spacebar " ", or any generic name
     split_direction = "horizontal", -- "horizontal", "vertical"
@@ -42,7 +45,7 @@ local const = {
     start_insert_in_other_tasks = false, -- If you want to enter terminal with :startinsert upon launching all other cmake tasks in the terminal. Generally set as false
     focus_on_main_terminal = false, -- Focus on cmake terminal when cmake task is launched. Only used if cmake_always_use_terminal is true.
     focus_on_launch_terminal = false, -- Focus on cmake launch terminal when executable target in launched.
-  }
+  })
 }
 
 return const

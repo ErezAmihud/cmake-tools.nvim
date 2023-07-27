@@ -22,6 +22,8 @@ The goal of this plugin is to offer a comprehensive, convenient, and powerful wo
 ## :balloon: Configuration
 
 ```lua
+terminal = require("cmake-tools.executors.terminal")
+--quickfix = require("cmake-tools.executors.quickfix")
 require("cmake-tools").setup {
   cmake_command = "cmake", -- this is used to specify cmake command path
   cmake_regenerate_on_save = true, -- auto generate when save CMakeLists.txt
@@ -44,13 +46,12 @@ require("cmake-tools").setup {
     runInTerminal = true,
     console = "integratedTerminal",
   },
-  cmake_always_use_terminal = false, -- if true, use terminal for generate, build, clean, install, run, etc, except for debug, else only use terminal for run, use quickfix for others
-  cmake_quickfix_opts = { -- quickfix settings for cmake, quickfix will be used when `cmake_always_use_terminal` is false
+  executor= quickfix:new({ -- executor settings for cmake
     show = "always", -- "always", "only_on_error"
     position = "belowright", -- "bottom", "top"
     size = 10,
   },
-  cmake_terminal_opts = { -- terminal settings for cmake, terminal will be used for run when `cmake_always_use_terminal` is false or true, will be used for all tasks except for debug when `cmake_always_use_terminal` is true
+  terminal = terminal:new({ -- terminal settings for cmake, terminal will be used for run, will be used for all tasks except for debug when executor is nil
     name = "Main Terminal",
     prefix_name = "[CMakeTools]: ", -- This must be included and must be unique, otherwise the terminals will not work. Do not use a simple spacebar " ", or any generic name
     split_direction = "horizontal", -- "horizontal", "vertical"
