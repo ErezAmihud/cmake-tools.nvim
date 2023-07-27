@@ -1,5 +1,5 @@
 local quickfix = require("cmake-tools.executors.quickfix")
-local terminal= require("cmake-tools.executors.terminal")
+local terminal = require("cmake-tools.executors.terminal")
 -- local overseer_exec = require("cmake-tools.executors.overseer")
 local const = {
   cmake_command = "cmake", -- cmake command path
@@ -13,7 +13,7 @@ local const = {
   cmake_kits_path = nil,
   cmake_variants_message = {
     short = { show = true },
-    long = { show = true, max_length = 40 }
+    long = { show = true, max_length = 40 },
   },
   cmake_dap_configuration = {
     name = "cpp",
@@ -23,7 +23,7 @@ local const = {
     runInTerminal = true,
     console = "integratedTerminal",
   },
-  terminal= terminal:new({
+  terminal = terminal:new({
     name = "Main Terminal",
     prefix_name = "[CMakeTools]: ", -- This must be included and must be unique, otherwise the terminals will not work. Do not use a simple spacebar " ", or any generic name
     split_direction = "horizontal", -- "horizontal", "vertical"
@@ -39,7 +39,7 @@ local const = {
     start_insert_in_other_tasks = false, -- If you want to enter terminal with :startinsert upon launching all other cmake tasks in the terminal. Generally set as false
     focus_on_main_terminal = false, -- Focus on cmake terminal when cmake task is launched. Only used if cmake_always_use_terminal is true.
     focus_on_launch_terminal = false, -- Focus on cmake launch terminal when executable target in launched.
-  })
+  }),
 }
 
 return const

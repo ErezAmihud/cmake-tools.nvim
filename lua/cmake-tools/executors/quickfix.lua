@@ -4,13 +4,13 @@ local Job = require("plenary.job")
 
 ---@type executor.Adapter
 local quickfix = {
-  opts={},
-  name="quickfix",
-  job = nil
+  opts = {},
+  name = "quickfix",
+  job = nil,
 }
 
 function quickfix:new(quickfix_opts)
-  local new_obj = {name="quickfix",opts=quickfix_opts, job=nil}
+  local new_obj = { name = "quickfix", opts = quickfix_opts, job = nil }
   self.__index = self
   return setmetatable(new_obj, self)
 end
@@ -40,7 +40,7 @@ end
 function quickfix:run(cmd, env, args, on_success)
   vim.fn.setqflist({}, " ", { title = cmd .. " " .. table.concat(args, " ") })
   if self.opts.show == "always" then
-	self:show()
+    self:show()
   end
 
   self.job = Job:new({
@@ -65,7 +65,6 @@ function quickfix:run(cmd, env, args, on_success)
   self.job:start()
   return quickfix.job
 end
-
 
 function quickfix:stop()
   quickfix.job:shutdown(1, 9)
@@ -95,15 +94,15 @@ end
 
 function quickfix:has_active_job()
   if config.terminal:has_active_job() then
-	  return true
+    return true
   end
   if not self.job or self.job.is_shutdown then
     return false
   end
   log.error(
     "A CMake task is already running: "
-    .. self.job.command
-    .. " Stop it before trying to run a new CMake task."
+      .. self.job.command
+      .. " Stop it before trying to run a new CMake task."
   )
   return true
 end

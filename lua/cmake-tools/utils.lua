@@ -32,8 +32,6 @@ function utils.get_cmake_configuration()
   return Result:new(Types.SUCCESS, cmakelists, "cmake-tools has found CMakeLists.txt.")
 end
 
-
-
 function utils.get_path(str, sep)
   sep = sep or "/"
   return str:match("(.*" .. sep .. ")")
@@ -47,10 +45,10 @@ end
 -- @param opts execute options
 function utils.execute(executor, terminal, executable, full_cmd)
   -- Please save all
-  vim.cmd("silent exec " .. "\"wall\"")
+  vim.cmd("silent exec " .. '"wall"')
   -- First, if we use some adapter to generate, build, etc, we should close it
   if executor ~= nil then
-     executor:close()
+    executor:close()
   end
   -- Then, execute it
   terminal:execute(executable, full_cmd)
@@ -65,7 +63,7 @@ function utils.softlink(src, target, config)
 
   if utils.file_exists(src) and not utils.file_exists(target) then
     -- if we don't always use terminal
-    local cmd = "silent exec " .. "\"!cmake -E create_symlink " .. src .. " " .. target .. "\""
+    local cmd = "silent exec " .. '"!cmake -E create_symlink ' .. src .. " " .. target .. '"'
     vim.cmd(cmd)
   end
 end
@@ -100,7 +98,7 @@ end
 function utils.run(executor, cmd, env, args, on_success)
   -- save all
   vim.cmd("wall")
-  executor:run(cmd,env,args,on_success)
+  executor:run(cmd, env, args, on_success)
 end
 
 function utils.mkdir(dir)
