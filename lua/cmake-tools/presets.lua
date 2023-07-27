@@ -1,4 +1,5 @@
 local Path = require("plenary.path")
+local config = require("cmake-tools.config")
 
 local presets = {}
 
@@ -10,7 +11,7 @@ function presets.check()
   -- helper function to find the config file
   -- returns file path if found, nil otherwise
   local function findcfg()
-    local files = vim.fn.readdir(".")
+    local files = vim.fn.readdir(config.global.working_dir)
     local file = nil
     local presetFiles = {}
     for _, f in ipairs(files) do -- iterate over files in current directory
@@ -20,7 +21,7 @@ function presets.check()
         or f == "cmake-presets.json"
         or f == "cmake-user-presets.json"
       then -- if a preset file is found
-        presetFiles[#presetFiles + 1] = vim.fn.resolve("./" .. f)
+        presetFiles[#presetFiles + 1] = tostring(Path:new(config.global.working_dir, f))
       end
     end
     table.sort(presetFiles, function(a, b)
@@ -71,7 +72,7 @@ local function decode(file)
   end
 
   for _, f in ipairs(includes) do
-    local fdata = vim.fn.json_decode(vim.fn.readfile(f))
+    local fdata = vim.fn.json_decode(vim.fn.readfile(vim.fs.dirname(file) .. "/" .. f))
     local thisFilePresetKeys = vim.tbl_filter(function(key)
       if string.find(key, "Presets") then
         return true
@@ -210,10 +211,10 @@ function presets.get_build_dir(preset)
   local build_dir = helper(preset)
 
   -- macro expansion
-  local source_path = Path:new(vim.loop.cwd())
-  local source_relative = vim.fn.fnamemodify(vim.loop.cwd(), ":t")
+  local source_path = Path:new(config.global.working_dir)
+  local source_relative = vim.fn.fnamemodify(config.global.working_dir, ":t")
 
-  local cwd = vim.loop.cwd()
+  local cwd = config.global.working_dir
   if not cwd then
     cwd = "."
   end

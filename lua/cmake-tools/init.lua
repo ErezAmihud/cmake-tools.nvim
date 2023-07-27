@@ -10,6 +10,7 @@ local presets = require("cmake-tools.presets")
 local log = require("cmake-tools.log")
 local osys = require("cmake-tools.osys")
 local terminal = require("cmake-tools.executors.terminal")
+local Path = require("plenary.path")
 local quickfix = require("cmake-tools.executors.quickfix")
 local _session = require("cmake-tools.session")
 
@@ -62,7 +63,7 @@ function cmake.generate(opt, callback)
     return
   end
 
-  local result = utils.get_cmake_configuration()
+  local result = utils.get_cmake_configuration(config.working_dir)
   if result.code ~= Types.SUCCESS then
     return log.error(result.message)
   end
@@ -78,7 +79,7 @@ function cmake.generate(opt, callback)
   -- if exists presets, preset include all info that cmake
   -- needed to execute, so we don't use cmake-kits.json and
   -- cmake-variants.[json|yaml] event they exist.
-  local presets_file = presets.check()
+  local presets_file = presets.check(config.working_dir)
   if presets_file and not config.configure_preset then
     -- this will also set value for build type from preset.
     -- default to be "Debug"
@@ -90,8 +91,10 @@ function cmake.generate(opt, callback)
   if presets_file and config.configure_preset then
     -- if exsist preset file and set configure preset, then
     -- set build directory to the `binaryDir` option of `configurePresets`
-    local build_directory =
+    local build_directory =tostring(Path:new(
+    vim.loop.cwd(),
       presets.get_build_dir(presets.get_preset_by_name(config.configure_preset, "configurePresets"))
+      ))
     if build_directory ~= "" then
       config:update_build_dir(build_directory)
     end
@@ -113,12 +116,12 @@ function cmake.generate(opt, callback)
       if type(callback) == "function" then
         callback()
       else
-        utils.run(config.executor, full_cmd, {}, {}, nil)
+        utils.run(config.executor, full_cmd, {}, {}, config.working_dir,nil)
         cmake.configure_compile_commands(const.cmake_always_use_terminal, const.cmake_terminal_opts)
         full_cmd = ""
       end
     else
-      return utils.run(config.executor, const.cmake_command, {}, args, function()
+      return utils.run(config.executor, const.cmake_command, {}, args, config.working_dir,function()
         if type(callback) == "function" then
           callback()
         end
@@ -153,7 +156,7 @@ function cmake.generate(opt, callback)
     config:update_build_dir(const.cmake_build_directory)
   else
     local _build_type = config.build_type:gsub("+", "_"):gsub(" ", "")
-    config:update_build_dir(const.cmake_build_directory_prefix .. _build_type)
+    config:update_build_dir(Path:new(config.working_dir, const.cmake_build_directory_prefix .. _build_type))
   end
 
   config:generate_build_directory()
@@ -178,12 +181,12 @@ function cmake.generate(opt, callback)
     if type(callback) == "function" then
       callback()
     else
-      utils.run(config.executor, full_cmd, {}, {}, nil)
+      utils.run(config.executor, full_cmd, {}, {}, config.working_dir,nil)
       cmake.configure_compile_commands(const.cmake_always_use_terminal, const.cmake_terminal_opts)
       full_cmd = ""
     end
   else
-    utils.run(config.executor, const.cmake_command, kit_option.env, args, function()
+    utils.run(config.executor, const.cmake_command, kit_option.env, args, config.working_dir,function()
       if type(callback) == "function" then
         callback()
       end
@@ -198,7 +201,7 @@ function cmake.clean(callback)
     return
   end
 
-  local result = utils.get_cmake_configuration()
+  local result = utils.get_cmake_configuration(config.working_dir)
   if result.code ~= Types.SUCCESS then
     return log.error(result.message)
   end
@@ -214,11 +217,11 @@ function cmake.clean(callback)
     if type(callback) == "function" then
       return callback()
     else
-      utils.run(config.executor, full_cmd, {}, {}, nil)
+      utils.run(config.executor, full_cmd, {}, {}, config.working_dir,nil)
       full_cmd = ""
     end
   else
-    return utils.run(config.executor, const.cmake_command, {}, args, function()
+    return utils.run(config.executor, const.cmake_command, {}, args, config.working_dir,function()
       if type(callback) == "function" then
         callback()
       end
@@ -261,7 +264,7 @@ function cmake.build(opt, callback)
 
   local args
   local presets_file = presets.check()
-
+  vim.print(config.build_directory.filename)
   if presets_file and config.build_preset then
     args = { "--build", "--preset", config.build_preset } -- preset don't need define build dir.
   else
@@ -290,11 +293,11 @@ function cmake.build(opt, callback)
     if type(callback) == "function" then
       callback()
     else
-      utils.run(config.executor, full_cmd, {}, {}, nil)
+      utils.run(config.executor, full_cmd, {}, {}, config.working_dir,nil)
       full_cmd = ""
     end
   else
-    utils.run(config.executor, const.cmake_command, {}, args, function()
+    utils.run(config.executor, const.cmake_command, {}, args, config.working_dir,function()
       if type(callback) == "function" then
         callback()
       end
@@ -349,7 +352,7 @@ function cmake.install(opt)
     return
   end
 
-  local result = utils.get_cmake_configuration()
+  local result = utils.get_cmake_configuration(config.working_dir)
   if result.code ~= Types.SUCCESS then
     return log.error(result.message)
   end
@@ -359,7 +362,7 @@ function cmake.install(opt)
   local args = { "--install", config.build_directory.filename }
   vim.list_extend(args, fargs)
 
-  return utils.run(config.executor, const.cmake_command, {}, args, nil)
+  return utils.run(config.executor, const.cmake_command, {}, args, config.working_dir, nil)
 end
 
 --- CMake close cmake console
@@ -388,7 +391,7 @@ function cmake.run(opt)
 
       if full_cmd ~= "" then
         full_cmd = 'cd "'
-          .. vim.loop.cwd()
+          .. config.working_dir
           .. '" && '
           .. full_cmd
           .. " && "
@@ -435,7 +438,7 @@ function cmake.run(opt)
           -- This jumps to the working directory, builds the target and then launches it inside the launch terminal
           -- Hence, "cd ".. vim.cwd .. " && "..    The \" is for path handling, specifically in win32
           full_cmd = 'cd "'
-            .. vim.loop.cwd()
+            .. config.working_dir
             .. '" && '
             .. full_cmd
             .. " && "
@@ -618,7 +621,7 @@ function cmake.select_build_type(callback)
     return
   end
 
-  local result = utils.get_cmake_configuration()
+  local result = utils.get_cmake_configuration(config.working_dir)
   if result.code ~= Types.SUCCESS then
     return log.error(result.message)
   end
@@ -661,7 +664,7 @@ function cmake.select_kit(callback)
     return
   end
 
-  local result = utils.get_cmake_configuration()
+  local result = utils.get_cmake_configuration(config.working_dir)
   if result.code ~= Types.SUCCESS then
     return log.error(result.message)
   end
@@ -703,7 +706,7 @@ function cmake.select_configure_preset(callback)
     return
   end
 
-  local result = utils.get_cmake_configuration()
+  local result = utils.get_cmake_configuration(config.working_dir)
   if result.code ~= Types.SUCCESS then
     return log.error(result.message)
   end
@@ -746,21 +749,20 @@ function cmake.select_configure_preset(callback)
 end
 
 function cmake.select_build_preset(callback)
-  vim.print(config.executor.name)
   if config.executor:has_active_job() then
     return
   end
 
-  local result = utils.get_cmake_configuration()
+  local result = utils.get_cmake_configuration(config.working_dir)
   if result.code ~= Types.SUCCESS then
     return log.error(result.message)
   end
 
   -- if exists presets
-  local presets_file = presets.check()
+  local presets_file = presets.check(config.working_dir)
   if presets_file then
-    local build_preset_names = presets.parse("buildPresets", { include_hidden = false })
-    local build_presets = presets.parse_name_mapped("buildPresets", { include_hidden = false })
+    local build_preset_names = presets.parse("buildPresets", { include_hidden = false }, config.working_dir)
+    local build_presets = presets.parse_name_mapped("buildPresets", { include_hidden = false }, config.working_dir)
     local format_preset_name = function(p_name)
       local p = build_presets[p_name]
       return p.displayName or p.name
@@ -925,31 +927,31 @@ function cmake.get_build_directory()
 end
 
 function cmake.is_cmake_project()
-  local result = utils.get_cmake_configuration()
+  local result = utils.get_cmake_configuration(config.working_dir)
   return result.code == Types.SUCCESS
 end
 
 function cmake.has_cmake_preset()
-  local presets_file = presets.check()
+  local presets_file = presets.check(config.working_dir)
   return presets_file ~= nil
 end
 
 --[[ end ]]
 
-function cmake.configure_compile_commands(cmake_always_use_terminal, cmake_terminal_opts)
+function cmake.configure_compile_commands()
   if const.cmake_soft_link_compile_commands then
-    cmake.compile_commands_from_soft_link(cmake_always_use_terminal, cmake_terminal_opts)
+    cmake.compile_commands_from_soft_link()
   elseif const.cmake_compile_commands_from_lsp then
     cmake.compile_commands_from_lsp()
   end
 end
 
-function cmake.compile_commands_from_soft_link(cmake_always_use_terminal, cmake_terminal_opts)
+function cmake.compile_commands_from_soft_link()
   if config.build_directory == nil then
     return
   end
 
-  local source = vim.loop.cwd()
+  local source = config.working_dir
     .. "/"
     .. config.build_directory.filename
     .. "/compile_commands.json"
@@ -999,6 +1001,24 @@ function cmake.ccls_on_new_config(new_config)
 end
 
 local group = vim.api.nvim_create_augroup("cmaketools", { clear = true })
+
+function cmake.select_cwd(cwd)
+	if cwd ~=nil then
+		config.working_dir=cwd
+		return
+	end
+	vim.ui.input({
+		prompt="The directory where the main CMakeLists.txt is located",
+		default=vim.loop.cwd(),
+		completion="dir",
+	}, vim.schedule_wrap(function(input)
+		--local new_path = Path:new(input)
+		--if new_path:is_dir() then
+		config.working_dir = input -- vim.fn.resolve(input)
+--	end
+	end))
+
+end
 
 function cmake.create_regenerate_on_save_autocmd()
   vim.api.nvim_create_autocmd("BufWritePre", {

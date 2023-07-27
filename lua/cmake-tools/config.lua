@@ -6,7 +6,9 @@ local Types = require("cmake-tools.types")
 local variants = require("cmake-tools.variants")
 
 local Config = {
+  global=nil,
   executor = nil,
+  working_dir = vim.loop.cwd() .. "\\cpp-home",
   terminal = nil,
   build_directory = nil,
   query_directory = nil,
@@ -33,8 +35,8 @@ function Config:new(const)
   else
     self.executor = const.executor
   end
-  --self.executor = const.executor
   self.terminal = const.terminal
+  Config.global=self
 
   return self
 end
@@ -46,7 +48,7 @@ function Config:update_build_dir(build_dir)
 end
 
 function Config:generate_build_directory()
-  local build_directory = Path:new(vim.loop.cwd(), self.build_directory)
+  local build_directory = self.build_directory
 
   if not build_directory:mkdir({ parents = true }) then
     return Result:new(Types.CANNOT_CREATE_DIRECTORY, false, "cannot create directory")
@@ -55,7 +57,7 @@ function Config:generate_build_directory()
 end
 
 function Config:generate_query_files()
-  local query_directory = Path:new(vim.loop.cwd(), self.query_directory)
+  local query_directory = self.query_directory
   if not query_directory:mkdir({ parents = true }) then
     return Result:new(Types.CANNOT_CREATE_DIRECTORY, false, "cannot create directory")
   end
@@ -75,7 +77,7 @@ end
 
 function Config:get_codemodel_targets()
   -- if reply_directory exists
-  local reply_directory = Path:new(vim.loop.cwd(), self.reply_directory)
+  local reply_directory = self.reply_directory
   if not reply_directory:exists() then
     return Result:new(Types.NOT_CONFIGURED, nil, "Configure fail")
   end
@@ -90,14 +92,14 @@ function Config:get_codemodel_targets()
 end
 
 function Config:get_code_model_target_info(codemodel_target)
-  local reply_directory = Path:new(vim.loop.cwd(), self.reply_directory)
+  local reply_directory = Path:new(self.reply_directory)
   return vim.json.decode((reply_directory / codemodel_target["jsonFile"]):read())
 end
 
 -- Check if launch target is built
 function Config:check_launch_target()
   -- 1. not configured
-  local build_directory = Path:new(vim.loop.cwd(), self.build_directory)
+  local build_directory = Path:new(self.build_directory)
   if not build_directory:exists() then
     return Result:new(Types.NOT_CONFIGURED, nil, "You need to configure it first")
   end
@@ -137,7 +139,7 @@ function Config:get_launch_target_from_info(target_info)
   target_path = Path:new(target_path)
   if not target_path:is_absolute() then
     -- then it is a relative path, based on build directory
-    local build_directory = Path:new(vim.loop.cwd(), self.build_directory)
+    local build_directory = Path:new(self.build_directory)
     target_path = build_directory / target_path
   end
   -- else it is an absolute path
@@ -168,7 +170,7 @@ end
 -- Check if build target exists
 function Config:check_build_target()
   -- 1. not configured
-  local build_directory = Path:new(vim.loop.cwd(), self.build_directory)
+  local build_directory = Path:new(self.working_dir, self.build_directory)
   if not build_directory:exists() then
     return Result:new(Types.NOT_CONFIGURED, nil, "You need to configure it first")
   end
@@ -211,7 +213,7 @@ function Config:get_build_target()
   target_path = Path:new(target_path)
   if not target_path:is_absolute() then
     -- then it is a relative path, based on build directory
-    local build_directory = Path:new(vim.loop.cwd(), self.build_directory)
+    local build_directory = Path:new(self.working_dir, self.build_directory)
     target_path = build_directory / target_path
   end
   -- else it is an absolute path

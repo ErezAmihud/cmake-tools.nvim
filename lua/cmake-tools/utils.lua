@@ -1,6 +1,7 @@
 local Path = require("plenary.path")
 local Result = require("cmake-tools.result")
 local Types = require("cmake-tools.types")
+local config = require("cmake-tools.config")
 
 local utils = {}
 
@@ -21,12 +22,12 @@ function utils.dump(o)
 end
 
 function utils.get_cmake_configuration()
-  local cmakelists = Path:new(vim.loop.cwd(), "CMakeLists.txt")
+  local cmakelists = Path:new(config.global.working_dir, "CMakeLists.txt")
   if not cmakelists:is_file() then
     return Result:new(
       Types.CANNOT_FIND_CMAKE_CONFIGURATION_FILE,
       nil,
-      "Cannot find CMakeLists.txt at cwd."
+      "Cannot find CMakeLists.txt at " .. config.global.working_dir .. " ."
     )
   end
   return Result:new(Types.SUCCESS, cmakelists, "cmake-tools has found CMakeLists.txt.")
@@ -94,11 +95,12 @@ end
 ---@param cmd string
 ---@param env table
 ---@param args table
+---@param working_dir string
 ---@param on_success function
-function utils.run(executor, cmd, env, args, on_success)
+function utils.run(executor, cmd, env, args, working_dir, on_success)
   -- save all
   vim.cmd("wall")
-  executor:run(cmd, env, args, on_success)
+  executor:run(cmd, env, args, working_dir, on_success)
 end
 
 function utils.mkdir(dir)
@@ -107,7 +109,7 @@ function utils.mkdir(dir)
 end
 
 function utils.rmdir(dir)
-  local _dir = Path:new(vim.loop.cwd(), dir)
+  local _dir = Path:new(config.working_dir, dir)
   if _dir:exists() then
     _dir:rm({ recursive = true })
   end

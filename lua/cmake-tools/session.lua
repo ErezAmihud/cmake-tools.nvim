@@ -22,7 +22,7 @@ local function get_cache_path()
 end
 
 local function get_current_path()
-  local current_path = vim.loop.cwd()
+  local current_path = vim.fn.getcwd()
   local clean_path = current_path:gsub("/", "")
   return get_cache_path() .. clean_path .. ".lua"
 end

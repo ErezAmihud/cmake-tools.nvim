@@ -23,12 +23,12 @@ function seer:close()
   overseer.close()
 end
 
-function seer:run(cmd, env, args, on_success)
+function seer:run(cmd, env, args, cwd, on_success)
   local opts = vim.tbl_extend("keep", self.opts, {
     cmd = cmd,
     args = args,
     env = env,
-    cwd = vim.fn.getcwd(),
+    cwd = cwd,
   })
   seer.job = overseer.new_task(opts)
   self.job:subscribe("on_complete", on_success)

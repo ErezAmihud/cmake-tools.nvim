@@ -37,7 +37,7 @@ local function append_to_quickfix(error, data)
   end
 end
 
-function quickfix:run(cmd, env, args, on_success)
+function quickfix:run(cmd, env, args, cwd, on_success)
   vim.fn.setqflist({}, " ", { title = cmd .. " " .. table.concat(args, " ") })
   if self.opts.show == "always" then
     self:show()
@@ -46,7 +46,7 @@ function quickfix:run(cmd, env, args, on_success)
   self.job = Job:new({
     command = cmd,
     args = next(env) and { "-E", "env", table.concat(env, " "), "cmake", unpack(args) } or args,
-    cwd = vim.loop.cwd(),
+    cwd = cwd,
     on_stdout = vim.schedule_wrap(append_to_quickfix),
     on_stderr = vim.schedule_wrap(append_to_quickfix),
     on_exit = vim.schedule_wrap(function(_, code, signal)

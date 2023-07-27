@@ -22,7 +22,7 @@ function executor.Adapter:close() end
 ---@param args table arguments to the executable
 ---@param on_success nil|function extra arguments, f.e on_success is a callback to be called when the process finishes
 ---@return nil
-function executor.Adapter:run(cmd, env, args, on_success) end
+function executor.Adapter:run(cmd, env, args, cwd, on_success) end
 
 ---Checks if there is an active job
 ---@return boolean
