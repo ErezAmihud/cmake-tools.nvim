@@ -10,7 +10,7 @@ local quickfix = {
 }
 
 function quickfix:new(quickfix_opts)
-  local new_obj = {opts=quickfix_opts}
+  local new_obj = {name="quickfix",opts=quickfix_opts, job=nil}
   self.__index = self
   return setmetatable(new_obj, self)
 end

@@ -10,6 +10,7 @@ local presets = require("cmake-tools.presets")
 local log = require("cmake-tools.log")
 local osys = require("cmake-tools.osys")
 local terminal = require("cmake-tools.executors.terminal")
+local quickfix = require("cmake-tools.executors.quickfix")
 local _session = require("cmake-tools.session")
 
 local config = Config:new(const)
@@ -21,6 +22,13 @@ local full_cmd = ""
 --- Setup cmake-tools
 function cmake.setup(values)
   const = vim.tbl_deep_extend("force", const, values)
+
+  if const.executor == nil then
+	  const.executor = quickfix:new({
+	show = "always", -- "always", "only_on_error"
+	position = "belowright", -- "bottom", "top"
+    	size = 10,})
+  end
   config = Config:new(const)
   -- preload the autocmd if the following option is true. only saves cmakelists.txt files
   if const.cmake_regenerate_on_save then
@@ -49,7 +57,7 @@ end
 --- Generate build system for this project.
 -- Think it as `cmake .`
 function cmake.generate(opt, callback)
-  if config.executor:has_active_job(const.cmake_always_use_terminal) then
+  if config.executor:has_active_job() then
     return
   end
 
@@ -233,7 +241,7 @@ end
 --- Build this project using the make toolchain of target platform
 --- think it as `cmake --build .`
 function cmake.build(opt, callback)
-  if config.executor:has_active_job(const.cmake_always_use_terminal) then
+  if config.executor:has_active_job() then
     return
   end
 
@@ -737,7 +745,8 @@ function cmake.select_configure_preset(callback)
 end
 
 function cmake.select_build_preset(callback)
-  if config.executor:has_active_job(const.cmake_always_use_terminal) then
+  vim.print(config.executor.name)
+  if config.executor:has_active_job() then
     return
   end
 
@@ -945,8 +954,8 @@ function cmake.compile_commands_from_soft_link(cmake_always_use_terminal, cmake_
 
   local source = vim.loop.cwd() .. "/" .. config.build_directory.filename .. "/compile_commands.json"
   local destination = vim.loop.cwd() .. "/compile_commands.json"
-  if cmake_always_use_terminal or utils.file_exists(source) then
-    utils.softlink(source, destination, config.executor)
+  if config.executor.name=="terminal" or utils.file_exists(source) then
+    utils.softlink(source, destination, config)
   end
 end
 

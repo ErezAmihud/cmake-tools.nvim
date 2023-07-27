@@ -30,6 +30,8 @@ function Config:new(const)
   self.build_options = const.cmake_build_options
   if const.executor == nil then
 	  self.executor = const.terminal
+else
+	self.executor = const.executor
   end
   --self.executor = const.executor
   self.terminal = const.terminal

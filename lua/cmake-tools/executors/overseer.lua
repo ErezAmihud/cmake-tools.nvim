@@ -10,7 +10,7 @@ local seer = {
 }
 
 function seer:new(overseer_opts)
-  local new_obj = {opts=overseer_opts}
+  local new_obj = {name="overseer", opts=overseer_opts, job=nil}
   self.__index = self
   return setmetatable(new_obj, self)
 end
@@ -31,7 +31,7 @@ function seer:run(cmd, env, args, on_success)
     cwd = vim.fn.getcwd()
     })
    seer.job = overseer.new_task (opts)
-  self.job.subscribe("on_complete", on_success)
+  self.job:subscribe("on_complete", on_success)
   self.job:start()
 
   return seer.job
@@ -46,7 +46,7 @@ function seer:has_active_job()
   if config.terminal:has_active_job() then
 	  return true
   end
-  if self.job:is_running() then
+  if self.job ~=nil and self.job:is_running() then
   log.error(
     "A CMake task is already running: "
     .. self.job.command

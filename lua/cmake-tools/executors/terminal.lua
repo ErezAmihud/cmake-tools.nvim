@@ -3,12 +3,13 @@ local log = require("cmake-tools.log")
 
 ---@type executor.Adapter
 local terminal = {
+  name="terminal",
   id = nil, -- id for the unified terminal
   opts={}
 }
 
 function terminal:new(terminal_opts)
-  local new_obj = {opts=terminal_opts}
+  local new_obj = {name="terminal", opts=terminal_opts, id=nil}
   self.__index = self
   return setmetatable(new_obj, self)
 end
