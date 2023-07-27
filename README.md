@@ -97,3 +97,13 @@ If you want to implement a missing feature, [consider making a PR](./docs/contri
 2. Inspired by [neovim-cmake](https://github.com/Shatur/neovim-cmake) which is made by [Shatur](https://github.com/Shatur), [GPL-3.0 license](https://github.com/Shatur/neovim-cmake/blob/master/COPYING).
 3. [plenary](https://github.com/nvim-lua/plenary.nvim), [MIT LICENSE](https://github.com/nvim-lua/plenary.nvim/blob/master/LICENSE).
 
+
+### For the future, when integrating ctest:
+
+```
+conf = require("cmake-tools.config)
+local result = conf.global:get_launch_target()
+local target_path = result.data
+cmake.build  -- build the target
+return {}
+```
