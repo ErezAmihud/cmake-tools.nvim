@@ -1002,11 +1002,7 @@ end
 
 local group = vim.api.nvim_create_augroup("cmaketools", { clear = true })
 
-function cmake.select_cwd(cwd)
-	if cwd ~=nil then
-		config.working_dir=cwd
-		return
-	end
+function cmake.select_cwd()
 	vim.ui.input({
 		prompt="The directory where the main CMakeLists.txt is located",
 		default=vim.loop.cwd(),
