@@ -2,6 +2,10 @@ local log = require("cmake-tools.log")
 local Job = require("plenary.job")
 local has_notify, notify = pcall(require, "notify")
 
+---@alias quickfix_show '"always"'|'"only_on_error"'
+---@alias quickfix_position '"belowright"'|'"bottom"'|'"top"'
+---@alias quickfix_opts_type {show:quickfix_show, position:quickfix_position, size:number}
+
 local quickfix = {
   job = nil,
   notification = {},
@@ -53,10 +57,12 @@ local function append_to_quickfix(error, data)
   end
 end
 
-function quickfix.show(quickfix_opts)
-  vim.api.nvim_command(quickfix_opts.position .. " copen " .. quickfix_opts.size)
+---@param opts quickfix_opts_type
+function quickfix.show(opts)
+  vim.api.nvim_command(opts.position .. " copen " .. opts.size)
   vim.api.nvim_command("wincmd p")
 end
+
 
 function quickfix.close()
   vim.api.nvim_command("cclose")

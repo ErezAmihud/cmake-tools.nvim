@@ -18,6 +18,8 @@ local Config = {
   kit = nil,
   configure_preset = nil,
   build_preset = nil,
+  executor= nil,
+  terminal= nil,
 }
 
 function Config:new(const)
@@ -26,6 +28,8 @@ function Config:new(const)
   self.__index = self
   self.generate_options = const.cmake_generate_options
   self.build_options = const.cmake_build_options
+  self.executor = const.cmake_executor
+  self.terminal = const.cmake_terminal
 
   return self
 end
