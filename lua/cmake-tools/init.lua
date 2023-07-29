@@ -19,18 +19,12 @@ local full_cmd = ""
 
 --- Setup cmake-tools
 function cmake.setup(values)
-  --local executor_is_terminal = values.cmake_executor == nil
   const = vim.tbl_deep_extend("force", const, values)
-  --[[if executor_is_terminal then
-    const.cmake_executor = const.cmake_terminal
-	end]]--
   config = Config:new(const)
   -- preload the autocmd if the following option is true. only saves cmakelists.txt files
   if const.cmake_regenerate_on_save then
     cmake.create_regenerate_on_save_autocmd()
   end
-  -- TODO the executor should not be recursively extended, otherwise not relevant options are added
-
 
   -- auto reload previous session
   if cmake.is_cmake_project() then
