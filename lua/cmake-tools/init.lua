@@ -966,12 +966,8 @@ function cmake.compile_commands_from_soft_link(cmake_always_use_terminal, cmake_
     .. config.build_directory.filename
     .. "/compile_commands.json"
   local destination = vim.loop.cwd() .. "/compile_commands.json"
-  if cmake_always_use_terminal or utils.file_exists(source) then
-    utils.softlink(source, destination, {
-      cmake_launch_path = vim.loop.cwd(),
-      cmake_always_use_terminal = cmake_always_use_terminal,
-      cmake_terminal_opts = cmake_terminal_opts,
-    })
+  if config.executor.name=="terminal" or utils.file_exists(source) then
+    utils.softlink(source, destination, config.executor.name=="terminal", config.terminal.opts)
   end
 end
 
