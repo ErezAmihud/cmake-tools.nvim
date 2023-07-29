@@ -2,10 +2,6 @@ local log = require("cmake-tools.log")
 local Job = require("plenary.job")
 local has_notify, notify = pcall(require, "notify")
 
----@alias quickfix_show '"always"'|'"only_on_error"'
----@alias quickfix_position '"belowright"'|'"bottom"'|'"top"'
----@alias quickfix_opts_type {show:quickfix_show, position:quickfix_position, size:number}
-
 local quickfix = {
   job = nil,
   notification = {},

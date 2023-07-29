@@ -20,6 +20,7 @@ local const = {
     runInTerminal = true,
     console = "integratedTerminal",
   },
+  cmake_always_use_terminal=false,
   cmake_executor = {
 	  name="quickfix",
 	  opts={
@@ -45,7 +46,6 @@ local const = {
     focus_on_launch_terminal = false, -- Focus on cmake launch terminal when executable target in launched.
   },},
   cmake_terminal_opts = {
-
     name = "Main Terminal",
     prefix_name = "[CMakeTools]: ", -- This must be included and must be unique, otherwise the terminals will not work. Do not use a simple spacebar " ", or any generic name
     split_direction = "horizontal", -- "horizontal", "vertical"

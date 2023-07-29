@@ -1,8 +1,7 @@
 local Path = require("plenary.path")
 local Result = require("cmake-tools.result")
 local Types = require("cmake-tools.types")
-local terminal = require("cmake-tools.terminal")
-local quickfix = require("cmake-tools.quickfix")
+local terminal = require("cmake-tools.executors.terminal")
 
 -- local const = require("cmake-tools.const")
 ---@alias executor_conf {name:string, opts:table}
@@ -62,20 +61,21 @@ end
 
 -- TODO change
 --- Execute CMake launch target in terminal.
--- @param executable executable file
--- @param full_cmd full command line
--- @param opts execute options
-function utils.execute(executable, full_cmd, opts)
+---@param executable string executable file
+---@param full_cmd string full command line
+---@param terminal_data executor_conf execute options
+---@param executor_data executor_conf execute options
+function utils.execute(executable, full_cmd,terminal_data, executor_data )
   -- Please save all
   vim.cmd("silent exec " .. '"wall"')
 
   -- First, if we use quickfix to generate, build, etc, we should close it
-  if not opts.cmake_always_use_terminal then
-    quickfix.close()
+  if executor_data.name ~= 'terminal' then
+    utils.close_cmake_window(executor_data)
   end
 
   -- Then, execute it
-  terminal.execute(executable, full_cmd, opts)
+  terminal.execute(executable, full_cmd, terminal_data.opts)
 end
 
 -- TODO change
@@ -133,7 +133,7 @@ end
 -- @return true if exists else false
 function utils.has_active_job(terminal_data, executor_data)
   return utils.get_executor(executor_data.name).has_active_job(executor_data.opts)
-  	--or utils.get_executor(terminal_data.name).has_active_job(terminal_data.opts)
+  	or utils.get_executor(terminal_data.name).has_active_job(terminal_data.opts)
 end
 
 function utils.mkdir(dir)

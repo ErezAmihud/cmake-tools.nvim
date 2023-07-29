@@ -1,6 +1,10 @@
 local log = require("cmake-tools.log")
 local Job = require("plenary.job")
 
+---@alias quickfix_show '"always"'|'"only_on_error"'
+---@alias quickfix_position '"belowright"'|'"bottom"'|'"top"'
+---@alias quickfix_opts_type {show:quickfix_show, position:quickfix_position, size:number}
+--
 ---@class quickfix : executor
 local quickfix = {
   job=nil,

@@ -101,7 +101,8 @@ function cmake.generate(opt, callback)
     vim.list_extend(args, config.generate_options)
     vim.list_extend(args, fargs)
 
-    --[[ TODO if const.cmake_always_use_terminal then
+    --[[ TODO
+    --if const.cmake_always_use_terminal then
       if full_cmd ~= "" then
         full_cmd = full_cmd .. " && " .. terminal.prepare_cmd_for_run(const.cmake_command, {}, args)
       else
@@ -409,10 +410,7 @@ function cmake.run(opt)
         full_cmd =
           terminal.prepare_cmd_for_execute(target_path, opt.args, launch_path, opt.wrap_call)
       end
-      utils.execute(target_path, full_cmd, {
-        cmake_always_use_terminal = const.cmake_always_use_terminal,
-        cmake_terminal_opts = const.cmake_terminal_opts,
-      })
+      utils.execute(target_path, full_cmd, config.terminal, config.executor)
       full_cmd = ""
     end)
   else
@@ -468,10 +466,7 @@ function cmake.run(opt)
             opt.wrap_call
           )
         end
-        utils.execute(target_path, full_cmd, {
-          cmake_always_use_terminal = const.cmake_always_use_terminal,
-          cmake_terminal_opts = const.cmake_terminal_opts,
-        })
+        utils.execute(target_path, full_cmd, config.terminal, config.executor)
         full_cmd = ""
       end)
     end
