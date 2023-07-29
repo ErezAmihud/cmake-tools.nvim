@@ -20,7 +20,11 @@ local full_cmd = ""
 
 --- Setup cmake-tools
 function cmake.setup(values)
+  --local executor_is_terminal = values.cmake_executor == nil
   const = vim.tbl_deep_extend("force", const, values)
+  --[[if executor_is_terminal then
+    const.cmake_executor = const.cmake_terminal
+	end]]--
   config = Config:new(const)
   -- preload the autocmd if the following option is true. only saves cmakelists.txt files
   if const.cmake_regenerate_on_save then
@@ -285,6 +289,7 @@ function cmake.build(opt, callback)
     vim.list_extend(args, fargs)
   end
 
+  -- TODO 
   if const.cmake_always_use_terminal then
     if full_cmd ~= "" then
       full_cmd = full_cmd .. " && " .. terminal.prepare_cmd_for_run(const.cmake_command, {}, args)

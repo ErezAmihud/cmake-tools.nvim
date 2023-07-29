@@ -1,4 +1,3 @@
-
 local log = require("cmake-tools.log")
 local Job = require("plenary.job")
 
