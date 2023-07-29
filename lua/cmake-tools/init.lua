@@ -8,8 +8,7 @@ local variants = require("cmake-tools.variants")
 local kits = require("cmake-tools.kits")
 local presets = require("cmake-tools.presets")
 local log = require("cmake-tools.log")
-local osys = require("cmake-tools.osys")
-local terminal = require("cmake-tools.terminal")
+local terminal = require("cmake-tools.executors.terminal")
 local _session = require("cmake-tools.session")
 
 local config = Config:new(const)
@@ -101,8 +100,7 @@ function cmake.generate(opt, callback)
     vim.list_extend(args, config.generate_options)
     vim.list_extend(args, fargs)
 
-    --[[ TODO
-    --if const.cmake_always_use_terminal then
+    if config.executor.name == "terminal" then
       if full_cmd ~= "" then
         full_cmd = full_cmd .. " && " .. terminal.prepare_cmd_for_run(const.cmake_command, {}, args)
       else
@@ -111,28 +109,20 @@ function cmake.generate(opt, callback)
       if type(callback) == "function" then
         callback()
       else
-        utils.run(full_cmd, {}, {}, {
-          cmake_launch_path = vim.loop.cwd(),
-          cmake_always_use_terminal = const.cmake_always_use_terminal,
-          cmake_terminal_opts = const.cmake_terminal_opts,
-        })
-        cmake.configure_compile_commands(const.cmake_always_use_terminal, const.cmake_terminal_opts)
+        utils.run(full_cmd, {}, {}, config.executor)
+        cmake.configure_compile_commands()
         full_cmd = ""
       end
-    else]]--
+    else
       return utils.run(const.cmake_command, {}, args,
       	config.executor,
-        -- TODO cmake_launch_path = vim.loop.cwd(),
         function()
           if type(callback) == "function" then
             callback()
           end
-          cmake.configure_compile_commands(
-            const.cmake_always_use_terminal,
-            const.cmake_terminal_opts
-          )
+          cmake.configure_compile_commands()
         end)
-    --end
+    end
   end
 
   -- if exists cmake-kits.json, kit is used to set
@@ -155,7 +145,7 @@ function cmake.generate(opt, callback)
 
   -- cmake kits, if cmake-kits.json doesn't exist, kit_option will
   -- be {env={}, args={}}, so it's okay.
-  local kit_option = kits.build_env_and_args(config.kit, const.cmake_always_use_terminal)
+  local kit_option = kits.build_env_and_args(config.kit, config.executor.name == "terminal")
 
   if const.cmake_build_directory ~= "" then
     config:update_build_dir(const.cmake_build_directory)
@@ -177,7 +167,7 @@ function cmake.generate(opt, callback)
   vim.list_extend(args, config.generate_options)
   vim.list_extend(args, fargs)
 
-  if const.cmake_always_use_terminal then
+  if config.executor.name == "terminal" then
     if full_cmd ~= "" then
       full_cmd = full_cmd .. " && " .. terminal.prepare_cmd_for_run(const.cmake_command, {}, args)
     else
@@ -187,7 +177,7 @@ function cmake.generate(opt, callback)
       callback()
     else
       utils.run(full_cmd, {}, {}, config.executor)
-      cmake.configure_compile_commands(const.cmake_always_use_terminal, const.cmake_terminal_opts)
+      cmake.configure_compile_commands()
       full_cmd = ""
     end
   else
@@ -196,7 +186,7 @@ function cmake.generate(opt, callback)
         if type(callback) == "function" then
           callback()
         end
-        cmake.configure_compile_commands(const.cmake_always_use_terminal, const.cmake_terminal_opts)
+        cmake.configure_compile_commands()
       end)
   end
 end
@@ -214,7 +204,7 @@ function cmake.clean(callback)
 
   local args = { "--build", config.build_directory.filename, "--target", "clean" }
 
-  if const.cmake_always_use_terminal then
+  if config.executor.name == "terminal" then
     if full_cmd ~= "" then
       full_cmd = full_cmd .. " && " .. terminal.prepare_cmd_for_run(const.cmake_command, {}, args)
     else
@@ -291,7 +281,7 @@ function cmake.build(opt, callback)
   end
 
   -- TODO 
-  if const.cmake_always_use_terminal then
+  if config.executor.name == "terminal" then
     if full_cmd ~= "" then
       full_cmd = full_cmd .. " && " .. terminal.prepare_cmd_for_run(const.cmake_command, {}, args)
     else
@@ -328,6 +318,7 @@ function cmake.quick_build(opt, callback)
 
     local targets_res = config:build_targets()
     local targets, display_targets = targets_res.data.targets, targets_res.data.display_targets
+    -- TODO I should add a command to get the cmake command itself. It should use plentry async module.
 
     vim.ui.select(
       display_targets,
@@ -350,9 +341,7 @@ function cmake.stop()
     return
   end
 
-  utils.stop({
-    cmake_always_use_terminal = const.cmake_always_use_terminal,
-  })
+  utils.stop(config.executor)
 end
 
 --- CMake install targets
@@ -417,7 +406,7 @@ function cmake.run(opt)
     local result = config:get_launch_target()
     local result_code = result.code
     if result_code == Types.NOT_CONFIGURED or result_code == Types.CANNOT_FIND_CODEMODEL_FILE then
-      if const.cmake_always_use_terminal then
+      if config.executor.name == "terminal" then
         log.error("For terminal mode, you need to firstly invoke CMakeGenerate.")
         full_cmd = ""
         return
@@ -552,7 +541,7 @@ if has_nvim_dap then
       local result_code = result.code
 
       if result_code == Types.NOT_CONFIGURED or result_code == Types.CANNOT_FIND_CODEMODEL_FILE then
-        if const.cmake_always_use_terminal then
+        if config.executor.name == "terminal" then
           log.error("For terminal mode, you need to firstly invoke CMakeGenerate.")
           full_cmd = ""
           return
@@ -810,7 +799,7 @@ function cmake.select_build_target(callback, regenerate)
   if targets_res.code ~= Types.SUCCESS then
     -- try again
     if not regenerate then
-      if const.cmake_always_use_terminal then
+      if config.executor.name == "terminal" then
         log.error("For terminal mode, you need to firstly invoke CMakeGenerate.")
         full_cmd = ""
         return
@@ -865,7 +854,7 @@ function cmake.select_launch_target(callback, regenerate)
   if targets_res.code ~= Types.SUCCESS then
     -- try again
     if not regenerate then
-      if const.cmake_always_use_terminal then
+      if config.executor.name == "terminal" then
         log.error("For terminal mode, you need to firstly invoke CMakeGenerate.")
         full_cmd = ""
         return
@@ -948,15 +937,15 @@ end
 
 --[[ end ]]
 
-function cmake.configure_compile_commands(cmake_always_use_terminal, cmake_terminal_opts)
+function cmake.configure_compile_commands()
   if const.cmake_soft_link_compile_commands then
-    cmake.compile_commands_from_soft_link(cmake_always_use_terminal, cmake_terminal_opts)
+    cmake.compile_commands_from_soft_link()
   elseif const.cmake_compile_commands_from_lsp then
     cmake.compile_commands_from_lsp()
   end
 end
 
-function cmake.compile_commands_from_soft_link(cmake_always_use_terminal, cmake_terminal_opts)
+function cmake.compile_commands_from_soft_link()
   if config.build_directory == nil then
     return
   end
