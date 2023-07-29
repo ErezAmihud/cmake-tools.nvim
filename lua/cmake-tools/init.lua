@@ -108,14 +108,12 @@ function cmake.generate(opt, callback)
         full_cmd = ""
       end
     else
-      return utils.run(const.cmake_command, {}, args,
-      	config.executor,
-        function()
-          if type(callback) == "function" then
-            callback()
-          end
-          cmake.configure_compile_commands()
-        end)
+      return utils.run(const.cmake_command, {}, args, config.executor, function()
+        if type(callback) == "function" then
+          callback()
+        end
+        cmake.configure_compile_commands()
+      end)
     end
   end
 
@@ -175,13 +173,12 @@ function cmake.generate(opt, callback)
       full_cmd = ""
     end
   else
-    utils.run(const.cmake_command, kit_option.env, args, config.executor
-      ,function()
-        if type(callback) == "function" then
-          callback()
-        end
-        cmake.configure_compile_commands()
-      end)
+    utils.run(const.cmake_command, kit_option.env, args, config.executor, function()
+      if type(callback) == "function" then
+        callback()
+      end
+      cmake.configure_compile_commands()
+    end)
   end
 end
 
@@ -212,10 +209,10 @@ function cmake.clean(callback)
     end
   else
     return utils.run(const.cmake_command, {}, args, config.executor, function()
-        if type(callback) == "function" then
-          callback()
-        end
-      end)
+      if type(callback) == "function" then
+        callback()
+      end
+    end)
   end
 end
 
@@ -274,7 +271,7 @@ function cmake.build(opt, callback)
     vim.list_extend(args, fargs)
   end
 
-  -- TODO 
+  -- TODO
   if config.executor.name == "terminal" then
     if full_cmd ~= "" then
       full_cmd = full_cmd .. " && " .. terminal.prepare_cmd_for_run(const.cmake_command, {}, args)
@@ -289,10 +286,10 @@ function cmake.build(opt, callback)
     end
   else
     utils.run(const.cmake_command, {}, args, config.executor, function()
-        if type(callback) == "function" then
-          callback()
-        end
-      end)
+      if type(callback) == "function" then
+        callback()
+      end
+    end)
   end
 end
 
@@ -949,8 +946,8 @@ function cmake.compile_commands_from_soft_link()
     .. config.build_directory.filename
     .. "/compile_commands.json"
   local destination = vim.loop.cwd() .. "/compile_commands.json"
-  if config.executor.name=="terminal" or utils.file_exists(source) then
-    utils.softlink(source, destination, config.executor.name=="terminal", config.terminal.opts)
+  if config.executor.name == "terminal" or utils.file_exists(source) then
+    utils.softlink(source, destination, config.executor.name == "terminal", config.terminal.opts)
   end
 end
 

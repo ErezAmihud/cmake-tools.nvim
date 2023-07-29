@@ -7,7 +7,7 @@ local Job = require("plenary.job")
 --
 ---@class quickfix : executor
 local quickfix = {
-  job=nil,
+  job = nil,
 }
 
 function quickfix.scroll_to_bottom()
@@ -83,8 +83,8 @@ function quickfix.has_active_job(opts)
   end
   log.error(
     "A CMake task is already running: "
-    .. quickfix.job.command
-    .. " Stop it before trying to run a new CMake task."
+      .. quickfix.job.command
+      .. " Stop it before trying to run a new CMake task."
   )
   return true
 end

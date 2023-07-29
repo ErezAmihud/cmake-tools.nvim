@@ -18,8 +18,8 @@ local Config = {
   kit = nil,
   configure_preset = nil,
   build_preset = nil,
-  executor= nil,
-  terminal= nil,
+  executor = nil,
+  terminal = nil,
 }
 
 function Config:new(const)

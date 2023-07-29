@@ -363,7 +363,6 @@ function terminal.check_if_cmake_buffers_are_displayed_across_all_tabs(opts)
   return unindexed_window_list
 end
 
-
 function terminal.get_windows_in_other_tabs(buflist, opts)
   local current_tabpage = vim.api.nvim_get_current_tabpage()
   local windows = {}
@@ -441,8 +440,7 @@ function terminal.execute(executable, full_cmd, opts)
 
   -- Buffer name of executable needs to be set with a prefix
   -- so that the reposition_term() function can find it
-  local _, buffer_idx =
-    terminal.create_if_not_exists(prefix .. executable, opts)
+  local _, buffer_idx = terminal.create_if_not_exists(prefix .. executable, opts)
   terminal.id = buffer_idx
 
   -- Reposition the terminal buffer, before sending commands
@@ -540,7 +538,7 @@ end
 ---@param opts table options for this adapter
 ---@return nil
 function terminal.close(opts)
-	-- TODO
+  -- TODO
 end
 
 ---Run a commond
@@ -570,15 +568,22 @@ function terminal.run(cmd, env, args, opts, on_success)
   cmd = "cd " .. launch_path .. " && " .. cmd
 
   -- Send final cmd to terminal
-  terminal.send_data_to_terminal(buffer_idx, cmd , vim.tbl_deep_extend("force",
-  {win_id = final_win_id,
-    split_direction = opts.split_direction,
-    split_size = opts.split_size,
-    start_insert = opts.start_insert_in_other_tasks,
-    focus_on_main_terminal = opts.focus_on_main_terminal,
-  },opts))
+  terminal.send_data_to_terminal(
+    buffer_idx,
+    cmd,
+    vim.tbl_deep_extend(
+      "force",
+      {
+        win_id = final_win_id,
+        split_direction = opts.split_direction,
+        split_size = opts.split_size,
+        start_insert = opts.start_insert_in_other_tasks,
+        focus_on_main_terminal = opts.focus_on_main_terminal,
+      },
+      opts
+    )
+  )
 end
-
 
 ---Stop the active job
 ---@param opts table options for this adapter

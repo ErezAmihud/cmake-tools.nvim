@@ -6,7 +6,6 @@ local terminal = require("cmake-tools.executors.terminal")
 -- local const = require("cmake-tools.const")
 ---@alias executor_conf {name:string, opts:table}
 
-
 local utils = {}
 
 -- Get string representation for object o
@@ -29,7 +28,7 @@ end
 ---@param name string
 ---@return executor
 function utils.get_executor(name)
-	return require("cmake-tools.executors")[name]
+  return require("cmake-tools.executors")[name]
 end
 
 function utils.get_cmake_configuration()
@@ -46,7 +45,7 @@ end
 
 ---@param executor_data executor_conf
 function utils.show_cmake_window(executor_data)
-	utils.get_executor(executor_data.name).show(executor_data.opts)
+  utils.get_executor(executor_data.name).show(executor_data.opts)
 end
 
 ---@param executor_data executor_conf
@@ -65,12 +64,12 @@ end
 ---@param full_cmd string full command line
 ---@param terminal_data executor_conf execute options
 ---@param executor_data executor_conf execute options
-function utils.execute(executable, full_cmd,terminal_data, executor_data )
+function utils.execute(executable, full_cmd, terminal_data, executor_data)
   -- Please save all
   vim.cmd("silent exec " .. '"wall"')
 
   -- First, if we use quickfix to generate, build, etc, we should close it
-  if executor_data.name ~= 'terminal' then
+  if executor_data.name ~= "terminal" then
     utils.close_cmake_window(executor_data)
   end
 
@@ -132,7 +131,7 @@ end
 -- @return true if exists else false
 function utils.has_active_job(terminal_data, executor_data)
   return utils.get_executor(executor_data.name).has_active_job(executor_data.opts)
-  	or utils.get_executor(terminal_data.name).has_active_job(terminal_data.opts)
+    or utils.get_executor(terminal_data.name).has_active_job(terminal_data.opts)
 end
 
 function utils.mkdir(dir)
@@ -155,10 +154,9 @@ function utils.file_exists(path)
   return true
 end
 
-
 ---@param executor_data executor_conf the executor
 function utils.stop(executor_data)
-	utils.get_executor(executor_data.name).stop(executor_data.opts)
+  utils.get_executor(executor_data.name).stop(executor_data.opts)
 end
 
 return utils
