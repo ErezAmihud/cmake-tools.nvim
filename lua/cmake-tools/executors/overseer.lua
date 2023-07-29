@@ -61,3 +61,5 @@ end
 function overseer_executor.stop(opts)
 	overseer_executor.job:stop()
 end
+
+return overseer_executor
