@@ -1,11 +1,6 @@
 ---@class executor
 local executor = {}
 
----Set up an executor
----@param opts table options for this adapter
----@return nil 
-function executor.new(opts) end
-
 ---Show the current executing command
 ---@param opts table options for this adapter
 ---@return nil
