@@ -32,6 +32,47 @@ local target_settings_default = {
   env = {},
 }
 
+function pick_one_sync(items, prompt, label_fn)
+  local choices = { prompt }
+  for i, item in ipairs(items) do
+    table.insert(choices, string.format("%d: %s", i, label_fn(item)))
+  end
+  local choice = vim.fn.inputlist(choices)
+  if choice < 1 or choice > #items then
+    return nil
+  end
+  return items[choice]
+end
+
+function pick_one(items, prompt, cb)
+  local co
+  if not cb then
+    co = coroutine.running()
+    if co then
+      cb = function(item)
+        coroutine.resume(co, item)
+      end
+    end
+  end
+  cb = vim.schedule_wrap(cb)
+  vim.ui.select(items, {
+    prompt = prompt,
+  }, cb)
+  if co then
+    return coroutine.yield()
+  end
+end
+
+function cmake.ccc()
+  local b = coroutine.create(function()
+    local ret = pick_one({ "hello", "bye" }, "pick something", false)
+    vim.print("ret")
+    vim.print(ret)
+  end)
+  vim.print("b")
+  vim.print(b)
+  coroutine.resume(b)
+end
 --- Setup cmake-tools
 function cmake.setup(values)
   if has_telescope then
