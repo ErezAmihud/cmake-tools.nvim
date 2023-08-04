@@ -1,5 +1,8 @@
-local overseer = require("overseer")
 local log = require("cmake-tools.log")
+local has_overseer, overseer = pcall(require, "overseer")
+if not has_overseer then
+  log.error("Overseer is missing, either use a different executor or install it")
+end
 
 ---@class overseer_exec : executor
 local overseer_executor = {

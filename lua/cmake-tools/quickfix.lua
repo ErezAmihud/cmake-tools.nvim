@@ -72,7 +72,7 @@ function quickfix.run(cmd, env, args, opts, on_exit, on_output)
       local msg = "Exited with code " .. code
 
       append_to_quickfix(msg)
-      if code == 0 and opts.show == "only_on_error" then
+      if code ~= 0 and opts.show == "only_on_error" then
         quickfix.show(opts)
         quickfix.scroll_to_bottom()
       end
