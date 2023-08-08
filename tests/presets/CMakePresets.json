@@ -1,0 +1,24 @@
+{
+    "version": 4,
+    "include": [
+        "cmake/basicPresets.json"
+    ],
+
+    "configurePresets": [
+        {
+            "name": "clang",
+            "displayName": "clang",
+            "inherits": ["debug"],
+            "description": "Using compilers: clang, clang++",
+            "generator": "Unix Makefiles",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "1",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++"
+            }
+        },
+    ]
+}
+

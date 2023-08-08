@@ -1,0 +1,9 @@
+[{
+    "name": "My Compiler Kit",
+    "compilers": {
+        "C": "/usr/bin/gcc",
+        "CXX": "/usr/bin/g++",
+        "Fortran": "/usr/bin/gfortran"
+    }
+}]
+

@@ -1,0 +1,13 @@
+{
+    "version": 4,
+    "configurePresets": [
+        {
+            "name": "debug",
+            "hidden": true,
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+               }
+        },
+    ]
+}
+
